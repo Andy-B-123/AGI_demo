@@ -1,0 +1,21 @@
+sudo: true
+dist: xenial 
+services:
+  - docker
+language: python 
+python:
+  - "3.5"
+
+before_install:
+  - pip3 install cwltool
+  - docker build -t AGI_demo .
+
+script:
+  # Both of these same tests, in Docker
+  # Functional tests
+  - docker run --entrypoint /AGI_demo/.travis/unit-test.sh AGI_demo
+  # Unit tests
+  - docker run --entrypoint /AGI_demo/functional_tests/AGI_demo-test.sh AGI_demo -p AGI_demo -d /AGI_demo/functional_tests/test_data -v
+
+  # CWL definition test
+  - cwltool AGI_demo.cwl --fasta_file functional_tests/test_data/two_sequence.fasta
